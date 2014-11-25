@@ -28,7 +28,7 @@ class TimeModeler:
 
 	# returns the sinusoidal basis function transformation for a given input x
 	def _basis_sinusodial(self,x,w):
-		return np.array([w[i-1]*np.cos(np.pi*i*x) for i in np.arange(1,len(w)+1)])
+		return np.array([w[i-1]*np.sin(np.pi*i*x) for i in np.arange(1,len(w)+1)])
 
 	# takes vector t and w and turns transforms from basis functions
 	def _matrix(self,t,w,isPoly=True):
@@ -93,7 +93,7 @@ if __name__ == '__main__':
 
 	#create artificial data
 	x = np.linspace(1,50,400)
-	y = .4 * np.sin(np.pi * .4 * x) + .5* np.sin(np.pi * .5 * x) + np.random.rand(1,len(x))[0]
+	y = .4 * np.sin(np.pi * .4* x) + .5* np.sin(np.pi * .5 * x) + np.random.rand(1,len(x))[0]
 	data = np.array(zip(x,y))
 	
 	#compute function
