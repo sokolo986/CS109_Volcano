@@ -1,113 +1,102 @@
 import numpy as np
 import pandas as pd
-import sys
-import math
 import matplotlib.pyplot as plt
+import sys
 
-# need to take into account the calculation for w0 - need to find out why my solution for pseudo inverse is producing a line, need t incorporate the regularization constants
+class TimeModeler:
+	def __init__(self,data,max_order=10,weightDecay=True,lamconst=10):
+		self.data = self._standardize(data)
+		self.order = np.arange(4,max_order+1)
+		self.order_predictions,self.err = ([],[])
 
-# extract data from csv
-def extract(filename):
-	return pd.read_csv(filename,header=True,sep=',')
+		self.poly = False  #if false uses the sinusodial basis
+		self.weightDecay = weightDecay #if false then no weight decay is used
+		self.lamConst = lamconst #weight decay constant 
 
-# preprocessor which standardizes the data before processing is done 
-def standardize(array):
-  mean = np.mean(array,0)
-  return (array - mean)/np.std(array,0)
- 
-# returns the polynomial basis function transformation for a given input x
-def basis(x,w):
-	return [w[i]*(x**i) for i in xrange(len(w))]
+	# preprocessor which standardizes the data before attempting to use the model 
+	def _standardize(self,array):
+		mean = np.mean(array,0)
+		return (array - mean)/np.std(array,0)
 
-# returns the polynomial basis function transformation for a given input x
-def basis_sinusodial(x,w):
-	return [w[i]*math.sin(math.pi*i*x) for i in xrange(len(w))]
+	# returns the polynomial basis function transformation for a given input x
+	def _basis_poly(self,x,w):
+		return [w[i]*(x**i) for i in xrange(len(w))]
 
-# given an array transforms it into basis approximation
-# def transform_with_basis(array):
-#	return np.apply_along_axis(basis,0,array)
+	# returns the linear basis function transformation for a given input x
+	def _basis_lin(self,x,w):
+		return [w[i]*(x) for i in xrange(len(w))]
 
-# takes vector t and w and turns transforms from basis functions
-def matrix(t,w,isPoly=True):
-	N = len(t)
-	mat = [[]]*N
-	for i in range(N):
-		if isPoly:
-			mat[i] = basis(t[i],w)
+	# returns the sinusoidal basis function transformation for a given input x
+	def _basis_sinusodial(self,x,w):
+		return np.array([w[i-1]*np.cos(np.pi*i*x) for i in np.arange(1,len(w)+1)])
+
+	# takes vector t and w and turns transforms from basis functions
+	def _matrix(self,t,w,isPoly=True):
+		N = len(t)
+		mat = [[]]*N
+		for i in range(N):
+			if isPoly:
+				mat[i] = self._basis_poly(t[i],w)
+			else:
+				mat[i] = self._basis_sinusodial(t[i],w)
+		mat = np.array(mat)
+		return mat
+
+	# solves for w by computing the Moore-Penrose pseduo inverse of input/output
+	def _compute_w(self,design,t,decayWeight=False,lamConstant=5):
+		if not decayWeight:
+			return (np.linalg.pinv(design)).dot(t)
 		else:
-			mat[i] = basis_sinusodial(t[i],w)
-	mat = np.array(mat)
-	return mat
+			lam = np.diag([lamConstant for i in xrange(len(design[0,:]))])
+			inv = np.linalg.inv(np.diag(lam)+(np.transpose(design).dot(design)))
+			return (inv).dot(np.transpose(design).dot(t))
 
-# solves for w by computing the Moore-Penrose pseduo inverse of the design matrix
-# or uses a weight decay for weight decay calculations
-def compute_w(design,t,decayWeight=False,lamConstant=5):
-	if not decayWeight:
-		return (np.linalg.pinv(design)).dot(t)
-	else:
-		lam = np.diag([lamConstant for i in xrange(len(design[0,:]))])
-		inv = np.linalg.inv(np.diag(lam)+(np.transpose(design).dot(design)))
-		return (inv).dot(np.transpose(design).dot(t))
+	def _error(self,t,t_new,constant):
+		return np.sum(((1.0/constant) * (t-t_new)**2))
 
-def error(t,t_new,constant):
-	return np.sum(((1.0/constant) * (t-t_new)**2))
+	def _show(self,in_fun,out_fun,title):
+			plt.plot(in_fun,out_fun,'r-')
+			plt.title(title)
+			plt.xlabel("Order")
+			plt.ylabel("Error")
+			plt.show()
 
-# Plots distortion versus run number
-def show(in_fun,out_fun,title):
-	plt.plot(in_fun,out_fun,'r-')
-	plt.title(title)
-	plt.xlabel("Order")
-	plt.ylabel("Error")
-	plt.show()
+	def _showCharts(self,in_fun, out_fun,title,x_lab,y_lab):
+		plot_array = []
+		plot_array.append(plt.plot(in_fun[:,0],in_fun[:,1],'bo'))
+		color_array = ['g--','r--','y--','c--','d--','m--','k--']
+		j = 0
+		for i in out_fun:
+			plot_array.append(plt.plot(in_fun[:,0],i,color_array[j]))
+			j += 1
+		plt.title(title)
+		plt.xlabel(x_lab)
+		plt.ylabel(y_lab)
+		plt.show()
 
-def showCharts(in_fun, out_fun,yerr,title,x_lab,y_lab):
-  plot_array = []
-  plot_array.append(plt.plot(in_fun[:,0],in_fun[:,1],'bo'))
-  color_array = ['g--','r--','y--','c--','d--','m--','k--']
-  j = 0
-  for i in out_fun:
-    plot_array.append(plt.errorbar(in_fun[:,0],i,yerr,color_array[j],yerr=5))
-    j += 1
-  plt.title(title)
-  plt.xlabel(x_lab)
-  plt.ylabel(y_lab)
-  plt.show()
+	#withCharts determine if an output of the plots are displayed
+	def compute(self,withCharts=True):
+		for i in xrange(len(self.order)):
+			w = np.ones(self.order[i])
+			design_matrix = self._matrix(self.data[:,0],w,self.poly)	
+			w = self._compute_w(design_matrix,self.data[:,1],self.weightDecay,self.lamConst)	
+			self.order_predictions.append(np.sum(self._matrix(self.data[:,0],w,self.poly),1))
+			self.err.append(self._error(data[:,1],self.order_predictions[i],len(self.data)))
+			print "Order:",self.order[i],"Error:",self.err[i]
 
-def showCharts(in_fun, out_fun,title,x_lab,y_lab):
-  plot_array = []
-  plot_array.append(plt.plot(in_fun[:,0],in_fun[:,1],'bo'))
-  color_array = ['g--','r--','y--','c--','d--','m--','k--']
-  j = 0
-  for i in out_fun:
-    plot_array.append(plt.plot(in_fun[:,0],i,color_array[j]))
-    j += 1
-  plt.title(title)
-  plt.xlabel(x_lab)
-  plt.ylabel(y_lab)
-  plt.show()
+		if withCharts:
+			self._showCharts(self.data,np.array(self.order_predictions),"Target and Predictions using "+str(len(self.order_predictions))+" Sinusoidal Model","time (t)","number of eruptions")
+			self._show(self.order,self.err,"Error by Order")
+
 
 if __name__ == '__main__':
 
-	#data = np.array(extract('motorcycle.csv'))
-	data = [[1,2],[3,2],[4,5],[5,7],[8,5],[9,10]]
-	data = standardize(data)
-	order = [4,5,6,7,8,9,10] #where order[x] == max polynomial of x**(order[x]-1)
-	order_predictions,err,beta = ([],[],[])
-
-	poly = False  #if false uses the sinusodial basis
-	weightDecay = True #if false then no weight decay is used
-	lamConst = 10 #weight constant to use for to reduce weights -> higher constant causes weights to decay to 0
-
-	for i in xrange(len(order)):
-		w = np.ones(order[i])
-		design_matrix = matrix(data[:,0],w,poly)	
-		w = compute_w(design_matrix,data[:,1],weightDecay,lamConst)	
-		order_predictions.append(np.sum(matrix(data[:,0],w,poly),1))
-		err.append(error(data[:,1],order_predictions[i],2))
-		beta.append(error(data[:,1],order_predictions[i],len(data)))
-		print "Error of an order",order[i],"Error:",err[i],"Variance:",beta[i]
-
-	showCharts(data,np.array(order_predictions),"Target and Predictions using "+str(len(order_predictions))+" Sinusoidal Model","time (t)","number of eruptions")
-	show(order,err,"Error by Order")
-
+	#create artificial data
+	x = np.linspace(1,50,400)
+	y = .4 * np.sin(np.pi * .4 * x) + .5* np.sin(np.pi * .5 * x) + np.random.rand(1,len(x))[0]
+	data = np.array(zip(x,y))
+	
+	#compute function
+	sin = TimeModeler(data,lamconst=5)
+	sin.compute()
 
