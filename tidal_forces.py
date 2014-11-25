@@ -2,7 +2,18 @@ import os
 import numpy as np
 import tidal
 
-def eruption_tides(sjd, dlat, dlon):
+def iter_tides(df, sjd_col, dlat_col, dlon_col, erup_col):
+	"""Returns dictionary of arrays of tidal forces given a pandas dataframe.
+	"""
+	tide_dict = {}
+	for erup_number in df[erup_col]:
+		tide_dict[erup_number] = calculate_tide(df[df[erup_col]==erup_number].iloc[0][sjd_col],
+								df[df[erup_col]==erup_number].iloc[0][dlat_col],
+								df[df[erup_col]==erup_number].iloc[0][dlon_col])
+	return tide_dict
+	
+	
+def calculate_tide(sjd, dlat, dlon):
     """ Returns arrays of tidal forces given the julian day, latitude,
     longitude."""
     
@@ -18,6 +29,7 @@ def eruption_tides(sjd, dlat, dlon):
     tidal.tidal(sjd, dlat, dlon)
     os.dup2(save,1)
     os.close(outfile)
+	os.remove(output_file)
     #save as numpy array
     tides = np.loadtxt(output_file)
     return tides
