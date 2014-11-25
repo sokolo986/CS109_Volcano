@@ -8,11 +8,7 @@ import matplotlib.animation as animation
 import matplotlib.image as mpimg
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import sys
-# This example uses subclassing, but there is no reason that the proper function
-# couldn't be set up and then use FuncAnimation. The code is long, but not
-# really complex. The length is due solely to the fact that there are a total
-# of 9 lines that need to be changed for the animation as well as 3 subplots
-# that need initial set up.
+
 class SubplotAnimation(animation.TimedAnimation):
     def __init__(self,title,t1,func_y1,func_y2,title1,title2,map_file,volc_fun,tmax=15,repeat=True):
         fig = plt.figure(facecolor="black",figsize=(9,8))
