@@ -1,6 +1,8 @@
 #weather - returns the pressure and the temperature at a location at a specific date
 #currently set up for individual queries, but can expand for bulk entries
 
+#need to fix location data
+
 import urllib2, urllib, json
 
 class Climate:
