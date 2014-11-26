@@ -7,7 +7,7 @@ def iter_tides(df, sjd_col, dlat_col, dlon_col, erup_col):
 	"""
 	tide_dict = {}
 	for erup_number in df[erup_col]:
-		tide_dict[erup_number] = calculate_tide(df[df[erup_col]==erup_number].iloc[0][sjd_col],
+                tide_dict[erup_number] = calculate_tide(df[df[erup_col]==erup_number].iloc[0][sjd_col],
 								df[df[erup_col]==erup_number].iloc[0][dlat_col],
 								df[df[erup_col]==erup_number].iloc[0][dlon_col])
 	return tide_dict
