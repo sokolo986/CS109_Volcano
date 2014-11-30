@@ -3,9 +3,14 @@ from datetime import datetime
 from sklearn.preprocessing import Imputer
 import astropy.time
 
-def convert_dates(df, year_col, month_col, day_col, new_col_name):
-    df[new_col_name] = df.apply(lambda row: datetime(int(row[year_col]), int(row[month_col]), int(row[day_col])), axis=1)
-    return df
+def convert_dates(df, year_col, month_col, day_col):
+    #python datetime does not support dates before 1AD. There is a python module called datautil we can use if necessary
+    #np.nan only works with floats...Start Years are ints and there are no NaN values,
+    #but End Years are floats with NaN's 
+    column = df.apply(lambda row: np.nan if ( (np.isnan(float(row[year_col]))) | (np.isnan(float(row[month_col]))) | (np.isnan(float(row[day_col])))\
+                        | (float(row[month_col]) == 0) | (float(row[day_col]) == 0))\
+                        else datetime(int(row[year_col]), int(row[month_col]), int(row[day_col])) , axis=1)
+    return column
 	
 def convert_zero(df, column, value):
     zero_days = df[df[column]==0].index
@@ -17,9 +22,9 @@ def eliminate_nan(df, column):
     new_df = df[df[column].notnull()]
     return new_df
 
-def julian_date(df, date_col, new_col_name):
-	df[new_col_name] = astropy.time.Time(df[date_col],scale = 'tai').jd
-	return df
+def julian_date(df, date_col):
+    column = astropy.time.Time(df[date_col],scale='tai').jd
+    return column
 
 def mean_days(df, start_col, end_col):
     mean = np.sum(df[end_col]-df[start_col])/float(len(df))
