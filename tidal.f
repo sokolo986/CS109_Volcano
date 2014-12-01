@@ -17,10 +17,10 @@ c      dlon=-0.469833
      .                  V2L,V2D,V2S,V3L,V3D,V3S,V3T,VARY)
        vvv=(v2l-v2d+v2s)*fact
 c      vvv=(v3l-v3d+v3s-v3t)*fact
-c      write(6,999) djd,v2l*fact,-v2d*fact,v2s*fact,vvv     
-c999   format(f18.6,3x,f12.6,1x,f12.6,1x,f12.6,1x,f12.6)
-       write(6,998) djd,v3l*fact,-v3d*fact,v3s*fact,-v3t*fact,vvv     
- 998   format(f18.6,3x,f12.6,1x,f12.6,1x,f12.6,1x,f12.6,1x,f12.6)
+      write(6,999) djd,v2l*fact,-v2d*fact,v2s*fact,vvv     
+999   format(f18.6,3x,f12.6,1x,f12.6,1x,f12.6,1x,f12.6)
+c       write(6,998) djd,v3l*fact,-v3d*fact,v3s*fact,-v3t*fact,vvv     
+c 998   format(f18.6,3x,f12.6,1x,f12.6,1x,f12.6,1x,f12.6,1x,f12.6)
        enddo
       END subroutine tidal
       SUBROUTINE TIDPOT (DLAT,DLON,DJD,PBOT,PTOP,
