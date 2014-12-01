@@ -1,6 +1,6 @@
 import numpy as np
 
-def meanXY(list_of_phases):
+def meanXY(array_of_phases):
 	#assumes phases in radians
 	x = np.cos(list_of_phases).sum()/len(list_of_phases)
 	y = np.sin(list_of_phases).sum()/len(list_of_phases)
