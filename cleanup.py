@@ -1,6 +1,7 @@
 import pandas as pd
 from datetime import datetime
 from sklearn.preprocessing import Imputer
+import numpy as np
 import astropy.time
 
 def convert_dates(df, year_col, month_col, day_col):
