@@ -1,6 +1,6 @@
 import os
 import numpy as np
-import tidal
+from tidal import tidal
 
 def iter_tides(df, sjd_col, dlat_col, dlon_col, erup_col):
 	"""Returns dictionary of arrays of tidal forces given a pandas dataframe.
@@ -13,7 +13,7 @@ def iter_tides(df, sjd_col, dlat_col, dlon_col, erup_col):
 	return tide_dict
 	
 	
-def calculate_tide(sjd, dlat, dlon):
+def calculate_tide(sjd=2452262, dlat=15, dlon=15):
     """ Returns arrays of tidal forces given the julian day, latitude,
     longitude."""
     
@@ -21,10 +21,12 @@ def calculate_tide(sjd, dlat, dlon):
     outfile = os.open(output_file, os.O_RDWR|os.O_CREAT)
     save = os.dup(1)
     os.dup2(outfile,1)
+
     #run file
     tidal.tidal(sjd, dlat, dlon)
     os.dup2(save,1)
     os.close(outfile)
+
     #save as numpy array
     tides = np.loadtxt(output_file)
     os.remove(output_file)
