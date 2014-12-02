@@ -5,16 +5,16 @@ from tidal import tidal
 def iter_tides(df, sjd_col, dlat_col, dlon_col, erup_col):
 	"""Returns dictionary of arrays of tidal forces given a pandas dataframe.
 	"""
-	tide = []
+	tide_dict = {}
 	for p,q,r,s in zip(df[erup_col].values, df[sjd_col].values, df[dlat_col].values, df[dlon_col].values):
-		tide.append(calculate_tide(q,r,s))
+		tide_dict[p]=calculate_tide(q,r,s)
 		
 	#for erup_number in df[erup_col]:
 				
                 #tide_dict[erup_number] = calculate_tide(df[df[erup_col]==erup_number].iloc[0][sjd_col],
 								#df[df[erup_col]==erup_number].iloc[0][dlat_col],
 								#df[df[erup_col]==erup_number].iloc[0][dlon_col])
-	return tide
+	return tide_dict
 	
 	
 def calculate_tide(sjd, dlat, dlon):
