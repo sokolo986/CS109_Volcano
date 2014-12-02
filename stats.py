@@ -3,19 +3,16 @@ import numpy as np
 def meanXY(array_of_phases):
 	#assumes phases in radians
 	x = np.cos(array_of_phases).sum()/len(array_of_phases)
-<<<<<<< HEAD
 	y = np.sin(array_of_phases).sum()/len(array_of_phases)
 	return x,y
 	
 def meanVec(array_of_phases):
-	x,y = MeanXY(array_of_phases)
-=======
-	y = np.sin(list_of_phases).sum()/len(array_of_phases)
+	x,y = meanXY(array_of_phases)
+	y = np.sin(array_of_phases).sum()/len(array_of_phases)
 	return x,y
 	
 def meanVec(array_of_phases):
-	x,y = getMeanXY(array_of_phases)
->>>>>>> 46018b5917e484e774ac268c0df0702ab34c676d
+	x,y = meanXY(array_of_phases)
 	r = np.sqrt(x**2 + y**2)
 	return r
 
@@ -31,11 +28,8 @@ def circularStd(array_of_phases):
 
 def meanAngle(array_of_phases):
 	#returns theta in radians
-<<<<<<< HEAD
-	x,y = MeanXY(array_of_phases)
-=======
-	x,y = getMeanXY(array_of_phases)
->>>>>>> 46018b5917e484e774ac268c0df0702ab34c676d
+	x,y = meanXY(array_of_phases)
+	x,y = meanXY(array_of_phases)
 	theta = np.arctan(y/x)
 	if (x<0) & (y>0):
 		theta = np.pi - theta 
