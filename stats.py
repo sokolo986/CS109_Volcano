@@ -1,19 +1,29 @@
 import numpy as np
 
-def meanXY(list_of_phases):
+def meanXY(array_of_phases):
 	#assumes phases in radians
-	x = np.cos(list_of_phases).sum()/len(list_of_phases)
-	y = np.sin(list_of_phases).sum()/len(list_of_phases)
+	x = np.cos(array_of_phases).sum()/len(array_of_phases)
+	y = np.sin(array_of_phases).sum()/len(array_of_phases)
 	return x,y
 	
 def meanVec(array_of_phases):
-	x,y = getMeanXY(list_of_phases)
+	x,y = MeanXY(array_of_phases)
 	r = np.sqrt(x**2 + y**2)
 	return r
 
+def circularVar(array_of_phases):
+	r =  meanVec(array_of_phases)
+	v = 1-r
+	return value
+
+def circularStd(array_of_phases):
+	r = meanVec(array_of_phases)
+	std = np.sqrt(-2*np.log(r))
+	return std
+
 def meanAngle(array_of_phases):
 	#returns theta in radians
-	x,y = getMeanXY(list_of_phases)
+	x,y = MeanXY(array_of_phases)
 	theta = np.arctan(y/x)
 	if (x<0) & (y>0):
 		theta = np.pi - theta 
@@ -32,8 +42,8 @@ def rayleighTest(array_of_phases):
 	return ray,mod_ray
 	
 def rayleigh_prob(array_of_phases):
-	r = meanAngle(list_of_phases)
-	p = np.exp(-(r**2)*len(list_of_phases))
+	r = meanAngle(array_of_phases)
+	p = np.exp(-(r**2)*len(array_of_phases))
 	return p
 	
 def rose_plot(array_of_phases, bins, figsize, rgrids, rlabel_pos, theta_grids, color):

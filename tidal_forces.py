@@ -13,7 +13,7 @@ def iter_tides(df, sjd_col, dlat_col, dlon_col, erup_col):
 	return tide_dict
 	
 	
-def calculate_tide(sjd=2452262, dlat=15, dlon=15):
+def calculate_tide(sjd, dlat, dlon):
     """ Returns arrays of tidal forces given the julian day, latitude,
     longitude."""
     
@@ -23,7 +23,7 @@ def calculate_tide(sjd=2452262, dlat=15, dlon=15):
     os.dup2(outfile,1)
 
     #run file
-    tidal.tidal(sjd, dlat, dlon)
+    tidal(sjd, dlat, dlon)
     os.dup2(save,1)
     os.close(outfile)
 
@@ -38,16 +38,54 @@ def longPeriodMax(tide_array):
     max = tide_array[ind,1]
     return ind, max
 
-def longPeriodPhase(tide_array):
+def longPeriodPhase(tide_array, period = 27.555):
 	# the major long period tide is 27.555 days
     erup_t = tide_array[0,0]
     t_max = longPeriodMax(tide_array)
-    phase = (360./27.555)*(t_max - erup_t)
+    phase = (360./period)*(t_max - erup_t)
     return phase
 
-def longPeriodPhases(tide_dict):
+def longPhasesDict(tide_dict):
     longPhaseDict = {}
     for key in tide_dict:
 	    longPhaseDict[key] = longPeriodPhase(tide_dict[key])
-    return longPhaseDict		
+    return longPhaseDict
+
+def diurnalPeriodMax(tide_array):
+    # should change this to find the first max, could be 2 max's in 30 days
+    ind = np.argmax(tide_array[:3000,2])
+    max = tide_array[ind,2]
+    return ind, max
+
+def diurnalPeriodPhase(tide_array, period = 27.555):
+	# the major long period tide is 27.555 days
+    erup_t = tide_array[0,0]
+    t_max = diurnalPeriodMax(tide_array)
+    phase = (360./period)*(t_max - erup_t)
+    return phase
+
+def diurnalPhasesDict(tide_dict):
+    diurnalPhaseDict = {}
+    for key in tide_dict:
+	    diurnalPhaseDict[key] = diurnalPeriodPhase(tide_dict[key])
+    return diurnalPhaseDict
+	
+def semiPeriodMax(tide_array):
+    # should change this to find the first max, could be 2 max's in 30 days
+    ind = np.argmax(tide_array[:3000,2])
+    max = tide_array[ind,3]
+    return ind, max
+
+def semiPeriodPhase(tide_array, period = 27.555):
+	# the major long period tide is 27.555 days
+    erup_t = tide_array[0,0]
+    t_max = semiPeriodMax(tide_array)
+    phase = (360./period)*(t_max - erup_t)
+    return phase
+
+def semiPhasesDict(tide_dict):
+    semiPhaseDict = {}
+    for key in tide_dict:
+	    semiPhaseDict[key] = semiPeriodPhase(tide_dict[key])
+    return semiPhaseDict
     

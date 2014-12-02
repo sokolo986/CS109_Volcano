@@ -11,7 +11,7 @@ c      dlon=-0.469833
       ptop=1.d10       
       fact=0.609/9.80
       vary=.false.   
-      do i=1,3001
+      do i=1,30001
        djd=sjd+(i-1)/100.
        CALL TIDPOT (DLAT,DLON,DJD,PBOT,PTOP,
      .                  V2L,V2D,V2S,V3L,V3D,V3S,V3T,VARY)
