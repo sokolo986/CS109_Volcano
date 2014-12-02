@@ -23,6 +23,7 @@ c      vvv=(v3l-v3d+v3s-v3t)*fact
 c       write(6,998) djd,v3l*fact,-v3d*fact,v3s*fact,-v3t*fact,vvv     
 c 998   format(f18.6,3x,f12.6,1x,f12.6,1x,f12.6,1x,f12.6,1x,f12.6)
        enddo
+		close(2)
       END subroutine tidal
       SUBROUTINE TIDPOT (DLAT,DLON,DJD,PBOT,PTOP,
      .                  V2L,V2D,V2S,V3L,V3D,V3S,V3T,VARY)
