@@ -15,6 +15,7 @@ def convert_dates(df, year_col, month_col, day_col):
 	
 def convert_zero(df, column, value):
     zero_days = df[df[column]==0].index
+	
     for i in zero_days:
         df.ix[i,column]=value
     return df
