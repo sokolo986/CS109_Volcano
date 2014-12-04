@@ -82,11 +82,12 @@ class TimeModeler:
 			w = self._compute_w(design_matrix,self.data[:,1],self.weightDecay,self.lamConst)	
 			self.order_predictions.append(np.sum(self._matrix(self.data[:,0],w,self.poly),1))
 			self.err.append(self._error(data[:,1],self.order_predictions[i],len(self.data)))
-			print "Order:",self.order[i],"Error:",self.err[i]
+			#print "Order:",self.order[i],"Error:",self.err[i],"W:",w
 
 		if withCharts:
 			self._showCharts(self.data,np.array(self.order_predictions),"Target and Predictions using "+str(len(self.order_predictions))+" Sinusoidal Model","time (t)","number of eruptions")
 			self._show(self.order,self.err,"Error by Order")
+		return w
 
 
 if __name__ == '__main__':
@@ -98,5 +99,5 @@ if __name__ == '__main__':
 	
 	#compute function
 	sin = TimeModeler(data,lamconst=5)
-	sin.compute()
+	#sin.compute() #uncomment to see result
 
