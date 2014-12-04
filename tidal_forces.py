@@ -36,109 +36,133 @@ def calculate_tide(sjd, dlat, dlon):
     os.remove(output_file)
     return tides
 	
-def mfPeriodMax(tide_array, period = 13.66):
-	#Mf is the fortnightly tide - - 13.66
-    min = np.around(15000-(period*100./2),0)
-    max = np.around(15000+(period*100./2),0)
-    ind = np.argmax(tide_array[min:max+1,1])
-    max_t = tide_array[ind,0]
-    max = tide_array[ind,1]
-    return max_t, max
-
-def mfPeriodPhase(tide_array, period = 13.66):
-    erup_t = tide_array[0,0]
-    t_max = mfPeriodMax(tide_array)[0]
-    phase = (360./period)*(t_max - erup_t)
-    return phase
-
-def mfPhasesDict(tide_dict):
-    mfPhaseDict = {}
-    for key in tide_dict:
-	    mfPhaseDict[key] = mfPeriodPhase(tide_dict[key])
-    return mfPhaseDict
-
-def mmPeriodMax(tide_array, period = 27.56):
-	#Mm is the monthly tide --27.56
-    min = np.around(15000-(period*100./2),0)
-    max = np.around(15000+(period*100./2),0)
-    ind = np.argmax(tide_array[min:max+1,1])
-    max_t = tide_array[ind,0]
-    max = tide_array[ind,1]
-    return max_t, max
-
-def mmPeriodPhase(tide_array, period = 27.56):
-	# the major long period tide is 27.555 days
-    erup_t = tide_array[0,0]
-    t_max = mmPeriodMax(tide_array)[0]
-    phase = (360./period)*(t_max - erup_t)
-    return phase
-
-def mmPhasesDict(tide_dict):
-    mmPhaseDict = {}
-    for key in tide_dict:
-	    mmPhaseDict[key] = mmPeriodPhase(tide_dict[key])
-    return mmPhaseDict	
+def findMax(tide_subset):
+    
 	
-def ssaPeriodMax(tide_array, period = 182.5):
-	#Ssa is the solar semi annual tide --- 182.5
-    min = np.around(15000-(period*100./2),0)
-    max = np.around(15000+(period*100./2),0)
-    ind = np.argmax(tide_array[min:max+1,1])
-    max_t = tide_array[ind,0]
-    max = tide_array[ind,1]
-    return max_t, max
+def periodMax(tide_array, period, column):
+	#tide = mf, mm, ssa, diurnal, or semi
+	# mf = moon fortnightly, mm = moon monthly, ssa = solar semiannual, diurnal = daily, semi = twice daily
+    cycle = 1.6*period
+    minimum = np.around(15000-(cycle*100./2),0)
+    maximum = np.around(15000+(cycle*100./2),0)
+    ind = np.argmax(tide_array[minimum:maximum+1,column])
+    max_t = tide_array[ind+minimum,0]
+    max_amp = tide_array[ind+minimum,column]
+    return max_t, max_amp
 
-def ssaPeriodPhase(tide_array, period = 182.5):
-	# the major ssa tide is 182.5 days (.5 years)
-    erup_t = tide_array[0,0]
-    t_max = ssaPeriodMax(tide_array)[0]
-    phase = (360./period)*(t_max - erup_t)
+def periodPhase(tide_array, tide):
+    if tide == 'mf':
+        period = 13.66
+        column = 1
+    elif tide == 'mm':
+	    period = 27.56
+	    column = 1
+    elif tide == 'ssa':
+        period = 182.5
+        column = 1
+    elif tide == 'diurnal':
+        period = 15.
+        column = 2
+    elif tide == 'semi':
+        period = 30.
+        column = 3
+    erup_t = tide_array[15000,0]
+    t_max = periodMax(tide_array,period=period,column=column)[0]
+    phase = (360./period)*(erup_t - t_max)
+    if phase>180.0:
+        phase = phase-360
+    if phase<-180.0:
+        phase = phase+360	
     return phase
 
-def ssaPhasesDict(tide_dict):
-    ssaPhaseDict = {}
+def phasesDict(tide_dict,tide):
+    phaseDict = {}
     for key in tide_dict:
-	    ssaPhaseDict[key] = ssaPeriodPhase(tide_dict[key])
-    return ssaPhaseDict	
+	    phaseDict[key] = periodPhase(tide_dict[key],tide)
+    return phaseDict
 
-def diurnalPeriodMax(tide_array, period = 15):
-    min = np.around(15000-(period*100./2),0)
-    max = np.around(15000+(period*100./2),0)
-    ind = np.argmax(tide_array[min:max+1,2])
-    max_t = tide_array[ind,0]
-    max = tide_array[ind,2]
-    return max_t, max
+# def mmPeriodMax(tide_array, period = 27.56):
+	# #Mm is the monthly tide --27.56
+    # min = np.around(15000-(period*100./2),0)
+    # max = np.around(15000+(period*100./2),0)
+    # ind = np.argmax(tide_array[min:max+1,1])
+    # max_t = tide_array[ind,0]
+    # max = tide_array[ind,1]
+    # return max_t, max
 
-def diurnalPeriodPhase(tide_array, period = 15):
-	# the diurnal phase is approximately 15 days
-    erup_t = tide_array[0,0]
-    t_max = diurnalPeriodMax(tide_array)[0]
-    phase = (360./period)*(t_max - erup_t)
-    return phase
+# def mmPeriodPhase(tide_array, period = 27.56):
+	# # the major long period tide is 27.555 days
+    # erup_t = tide_array[15000,0]
+    # t_max = mmPeriodMax(tide_array)[0]
+    # phase = (360./period)*(erup_t - t_max)
+    # return phase
 
-def diurnalPhasesDict(tide_dict):
-    diurnalPhaseDict = {}
-    for key in tide_dict:
-	    diurnalPhaseDict[key] = diurnalPeriodPhase(tide_dict[key])
-    return diurnalPhaseDict
+# def mmPhasesDict(tide_dict):
+    # mmPhaseDict = {}
+    # for key in tide_dict:
+	    # mmPhaseDict[key] = mmPeriodPhase(tide_dict[key])
+    # return mmPhaseDict	
 	
-def semiPeriodMax(tide_array, period = 30):
-    min = np.around(15000-(period*100./2),0)
-    max = np.around(15000+(period*100./2),0)
-    ind = np.argmax(tide_array[min:max+1,3])
-    max_t = tide_array[ind,0]
-    max = tide_array[ind,3]
-    return max_t, max
+# def ssaPeriodMax(tide_array, period = 182.5):
+	# #Ssa is the solar semi annual tide --- 182.5
+    # min = np.around(15000-(period*100./2),0)
+    # max = np.around(15000+(period*100./2),0)
+    # ind = np.argmax(tide_array[min:max+1,1])
+    # max_t = tide_array[ind,0]
+    # max = tide_array[ind,1]
+    # return max_t, max
 
-def semiPeriodPhase(tide_array, period = 30):
-    erup_t = tide_array[0,0]
-    t_max = semiPeriodMax(tide_array)[0]
-    phase = (360./period)*(t_max - erup_t)
-    return phase
+# def ssaPeriodPhase(tide_array, period = 182.5):
+	# # the major ssa tide is 182.5 days (.5 years)
+    # erup_t = tide_array[15000,0]
+    # t_max = ssaPeriodMax(tide_array)[0]
+    # phase = (360./period)*(erup_t - t_max)
+    # return phase
 
-def semiPhasesDict(tide_dict):
-    semiPhaseDict = {}
-    for key in tide_dict:
-	    semiPhaseDict[key] = semiPeriodPhase(tide_dict[key])
-    return semiPhaseDict
+# def ssaPhasesDict(tide_dict):
+    # ssaPhaseDict = {}
+    # for key in tide_dict:
+	    # ssaPhaseDict[key] = ssaPeriodPhase(tide_dict[key])
+    # return ssaPhaseDict	
+
+# def diurnalPeriodMax(tide_array, period = 15):
+    # min = np.around(15000-(period*100./2),0)
+    # max = np.around(15000+(period*100./2),0)
+    # ind = np.argmax(tide_array[min:max+1,2])
+    # max_t = tide_array[ind,0]
+    # max = tide_array[ind,2]
+    # return max_t, max
+
+# def diurnalPeriodPhase(tide_array, period = 15):
+	# # the diurnal phase is approximately 15 days
+    # erup_t = tide_array[15000,0]
+    # t_max = diurnalPeriodMax(tide_array)[0]
+    # phase = (360./period)*(erup_t - t_max)
+    # return phase
+
+# def diurnalPhasesDict(tide_dict):
+    # diurnalPhaseDict = {}
+    # for key in tide_dict:
+	    # diurnalPhaseDict[key] = diurnalPeriodPhase(tide_dict[key])
+    # return diurnalPhaseDict
+	
+# def semiPeriodMax(tide_array, period = 30):
+    # min = np.around(15000-(period*100./2),0)
+    # max = np.around(15000+(period*100./2),0)
+    # ind = np.argmax(tide_array[min:max+1,3])
+    # max_t = tide_array[ind,0]
+    # max = tide_array[ind,3]
+    # return max_t, max
+
+# def semiPeriodPhase(tide_array, period = 30):
+    # erup_t = tide_array[15000,0]
+    # t_max = semiPeriodMax(tide_array)[0]
+    # phase = (360./period)*(erup_t - t_max)
+    # return phase
+
+# def semiPhasesDict(tide_dict):
+    # semiPhaseDict = {}
+    # for key in tide_dict:
+	    # semiPhaseDict[key] = semiPeriodPhase(tide_dict[key])
+    # return semiPhaseDict
     

@@ -7,6 +7,7 @@ class NorthPolarAxes(PolarAxes):
     name = 'northpolar'
 
     def format_coord(self, angle, radius): 
+		#angle in radians
         angle = np.pi * 0.5 - angle
         if angle < 0:
             angle = angle + 2 * np.pi
