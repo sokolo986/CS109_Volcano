@@ -175,7 +175,7 @@ if __name__ == '__main__':
 		print
 """
 
-#New direction: Will use the chi-test after subtracting sine model out (test to see if the error is random)
+#New direction: Will use the normal test after subtracting sine model out (test to see if the error is random)
 #copies the amplitude of data and then recreates a sine model which is then subtracted from the original
 #model can be tuned and adjusted to match and seasons and get rid of series in the data, then when ready can be subtracted.
 #the residuals are tested for normality
