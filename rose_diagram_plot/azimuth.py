@@ -28,6 +28,5 @@ for r,bar in zip(frequency, bars):
     bar.set_facecolor(pl.cm.jet(0.8))
     bar.set_edgecolor('grey')
     bar.set_alpha(0.8)
-
 pl.show()
 
