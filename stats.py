@@ -59,17 +59,17 @@ def rayleigh_prob(array_of_phases):
 	p = np.exp(-(r**2)*len(array_of_phases))
 	return p
 	
-def rose_plot(array_of_phases, bins, figsize, rgrids, rlabel_pos, theta_grids, color):
+# rose_plot(array_of_phases, bins, figsize, rgrids, rlabel_pos, theta_grids, color):
 
 	###finish this
-	fig = plt.figure(figsize = figsize)
-	p = fig.add_subplot(111, polar = True)
-	#p.set_theta_zero_location('N')
+	#fig = plt.figure(figsize = figsize)
+	#p = fig.add_subplot(111, polar = True)
+	#p.set_theta_zero_location('E')
 	#p.set_theta_direction(-1)
-	p.set_rgrids(rgrids)
-	p.set_rlabel_position(rlabel_pos)
-	p.set_theta_grids(theta_grids)
-	hist, bin_edges = np.histogram(array_of_phases, bins)
+	#p.set_rgrids(rgrids)
+	#p.set_rlabel_position(rlabel_pos)
+	#p.set_theta_grids(theta_grids)
+	#hist, bin_edges = np.histogram(array_of_phases, bins)
 	
 """	
 #worked on this but did not like the direction it was going - so I started on the project below
