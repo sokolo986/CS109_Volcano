@@ -1,65 +1,63 @@
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.cross_validation import cross_val_score
+from sklearn import cross_validation
 import numpy as np
+import matplotlib.pyplot as plt
+import sys
+import pandas as pd
 
-x = np.random.randn(1,50)[0]
-Y = x + np.random.rand(1,50)[0]
-y = Y.reshape(len(Y),)
-print x
-print y
-"""
-scores = []
-for t in xrange(40):
-    num_trees = t+1
-    clf = RandomForestClassifier(n_estimators=num_trees)
-    score = cross_val_score(clf,x,y,cv=10,scoring='f1')
-    scores.append(np.mean(score))
+#data is entire matrix with x and y
+#if isRegressor, assumes regression otherwise classification
+def feature_importance (data,isRegressor,n_estimators=50,test_estimators=False):
 
-plt.scatter(np.arange(len(scores))+1,scores)
-plt.title("Scores versus Num Trees")
-plt.xlabel("Num Trees")
-plt.ylabel("Scores")
-plt.show()
-"""
-#convert volcano data from 0 and 1 to indicate if it it exploded in that month or not - turn it into a classification problem
+	n,m 	= np.shape(data)
+	X 		= np.asarray(data.ix[:,0:m-1].values)
+	y 		= np.asarray(data.ix[:,m-1].values)
+	X_train,X_test,y_train,y_test = cross_validation.train_test_split(X,y,test_size = .2)
 
-perc_explosions = np.sum(y)/float(len(y))
-"""
-plt.scatter(np.arange(len(scores))+1,scores)
-plt.axhline(y=perc_explosions,color='r')
-plt.title("Scores versus Num Trees")
-plt.xlabel("Num Trees")
-plt.ylabel("Scores")
-plt.show()
-"""
+	if test_estimators:
+		scores = []
+		trees = np.arange(1,70)
+		if isRegressor:
+			for t in trees:
+				clf = RandomForestRegressor(n_estimators=t)
+				clf.fit(X_train,y_train)
+				y_hat = clf.predict(X_test)
+				#score = clf.score(X,y)
+				mse = np.mean((y_hat-y_test)**2)
+				scores.append(mse)
+		else:
+			for t in trees:
+				clf = RandomForestClassifier(n_estimators=t)
+				clf.fit(X_train,y_train)
+				#prob = clf.predict_proba(x)
+				score = cross_val_score(clf,X_test,y_test,cv=10,scoring='f1')
+				scores.append(score)
 
-clf = RandomForestClassifier(n_estimators=15)
-clf = clf.fit(x,y)
-prob = clf.predict_proba(x)
-prop_app = np.apply_along_axis(lambda x: x>.03,1,prob).astype(int)
+		#plot
+		plt.scatter(trees,scores)
+		plt.title("Scores versus Num Trees")
+		plt.xlabel("Num Trees")
+		plt.ylabel("Scores")
+		plt.show()
 
-assert((prop_app[:,1]==clf.predict(X)).all())
+		print "\nMax:",np.max(scores),"achieved by",trees[np.argmax(scores)],"trees","\nMin score",np.min(scores),"achieved by",trees[np.argmin(scores)],"trees"
 
-def cutoff_predict(clf,X,cutoff):
-    assert(cutoff<=1 and cutoff>=0)
-    prob = clf.predict_proba(X)
-    return np.apply_along_axis(lambda x: x>cutoff,1,prob)[:,1].astype(int)
+	if isRegressor:
+		clf = RandomForestRegressor(n_estimators=n_estimators)
+		clf.fit(X_train,y_train)
+	else:
+		clf = RandomForestClassifier(n_estimators=n_estimators)
+		clf.fit(X_train,y_train)
+	return clf.feature_importances_
 
+if __name__ == '__main__':
 
-def custom_f1(cutoff):
-    def f1_cutoff(clf, X, y):
-        ypred = cutoff_predict(clf, X, cutoff)
-        return sklearn.metrics.f1_score(y, ypred)      
-    return f1_cutoff
+	data 	= pd.io.parsers.read_csv('diamonds.csv',sep=',',header=True)
 
-cs=[]
-for c in np.arange(.1,.9,.1):
-    cs.append(custom_f1(c)(clf,x,y))
+	feature_imp = feature_importance(data,True,n_estimators=60,test_estimators=True)
 
-print "Cutoff Scores:",cs
+	print "Feature Importance:",feature_imp
+	
 
-plt.boxplot(np.arange(.1,.9,.1),cs)
-plt.title("F1 scores for Various Cutoff Values")
-plt.xlabel("Cutoff")
-plt.ylabel("F1 score")
-plt.show()
