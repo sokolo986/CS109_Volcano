@@ -35,49 +35,70 @@ def calculate_tide(sjd, dlat, dlon):
     tides = np.loadtxt(output_file)
     os.remove(output_file)
     return tides
-	
-def findMax(tide_array, minimum, maximum, tide):
-    ind = np.argmax(tide_array[minimum:maximum+1, column])
-	while (ind == maximum) or (ind == minimum):
-		cycle = period
-	if ind == maximum:
-	    
-	while slope != zero:
-	    if maximu
-		new_max = maximum - time
-		ind = np.argmax(tide_array[minimum:new_max+1,column])
-	return ind
-	
-def periodMax(tide_array, period, column):
-	#tide = mf, mm, ssa, diurnal, or semi
-	# mf = moon fortnightly, mm = moon monthly, ssa = solar semiannual, diurnal = daily, semi = twice daily
-    cycle = 1.6*period
+
+def findMax(tide_array, cycle, column, tide):
+# for long period cycles if the max is at the end then it is probably on a slo
     minimum = np.around(15000-(cycle*100./2),0)
     maximum = np.around(15000+(cycle*100./2),0)
-    ind = np.argmax(tide_array[minimum:maximum+1,column])
-    max_t = tide_array[ind+minimum,0]
-    max_amp = tide_array[ind+minimum,column]
+    ind = np.argmax(tide_array[minimum:maximum+1, column])
+    time_shift = 0.05*cycle
+    if (tide == 'semi') | (tide == 'diurnal') | (tide == 'ssa'):
+        #time shift out
+        while (ind+minimum == maximum) | (ind+minimum == minimum):
+            if minimum+ind == maximum:
+			    maximum = np.around(maximum +time_shift,0)
+            elif minimum+ind == minimum:
+                minimum = np.around(minimum - time_shift,0)
+            ind = np.argmax(tide_array[minimum:maximum+1,column])
+    else:
+        #time shift in
+        while (ind+minimum == maximum) | (ind+minimum == minimum):
+            if minimum+ind == maximum:
+                maximum = np.around(maximum - time_shift,0)
+            elif minimum+ind == minimum:
+                minimum = np.around(minimum + time_shift,0)
+            ind = np.argmax(tide_array[minimum:maximum+1,column])
+    final_ind = minimum+ind
+    return final_ind
+
+	
+def periodMax(tide_array, cycle, column, tide):
+    column = column
+    #tide = mf, mm, ssa, diurnal, or semi
+    # mf = moon fortnightly, mm = moon monthly, ssa = solar semiannual, diurnal = daily, semi = twice daily
+    cycle = cycle
+    # minimum = np.around(15000-(cycle*100./2),0)
+    # maximum = np.around(15000+(cycle*100./2),0)
+    # ind = np.argmax(tide_array[minimum:maximum+1,column])
+    ind = findMax(tide_array, cycle, column, tide)
+    max_t = tide_array[ind,0]
+    max_amp = tide_array[ind,column]
     return max_t, max_amp
 
 def periodPhase(tide_array, tide):
     if tide == 'mf':
         period = 13.66
         column = 1
+        cycle = 1.5*period
     elif tide == 'mm':
-	    period = 27.56
-	    column = 1
+        period = 27.56
+        column = 1
+        cycle = 1.5*period
     elif tide == 'ssa':
         period = 182.5
         column = 1
+        cycle = 1.*period
     elif tide == 'diurnal':
         period = 15.
         column = 2
+        cycle = 1.*period
     elif tide == 'semi':
         period = 30.
         column = 3
+        cycle = 1.*period
     erup_t = tide_array[15000,0]
-    t_max = periodMax(tide_array,period=period,column=column)[0]
-    phase = (360./period)*(erup_t - t_max)
+    max_t = periodMax(tide_array,cycle = cycle,column=column, tide = tide)[0]
+    phase = (360./period)*(erup_t - max_t)
     if phase>180.0:
         phase = phase-360
     if phase<-180.0:

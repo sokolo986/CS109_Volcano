@@ -1,5 +1,8 @@
-#to run and test this file go down to the bottom, right under main, and change phase_length and phase_diff (to be in the range of phase length). 
-#This works by subtracting out the sine model from the main curve and determining what the true phase is. If the true phase of the eruptions matches with one of the forces, we can associate that with a p-value 
+#to run and test this file go down to the bottom, right under main, 
+#and change phase_length and phase_diff (to be in the range of phase length). 
+#This works by subtracting out the sine model from the main curve and determining 
+#what the true phase is. If the true phase of the eruptions matches with one of the forces,
+# we can associate that with a p-value 
 
 import numpy as np
 import scipy.stats as stat

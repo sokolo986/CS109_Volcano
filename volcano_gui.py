@@ -1,4 +1,5 @@
-#GUI for volcano - only function left to implement is a conversion between the location of a dot on a picture and a map - we can start migrating true data to this file
+#GUI for volcano - only function left to implement is a conversion between the location
+#of a dot on a picture and a map - we can start migrating true data to this file
 #will also clean up file so it looks neater 
 
 import numpy as np
@@ -74,7 +75,7 @@ class SubplotAnimation(animation.TimedAnimation):
         head = i - 1
         head_len = 10
         head_slice = (self.t > self.t[i] - 1.0) & (self.t < self.t[i])
-        vol   = self.volc_fun()
+        vol = self.volc_fun()
 
         if i > 0:
             lastt = self.z[i-1:i][0]
@@ -155,14 +156,14 @@ if __name__=='__main__':
 
 	map_name = 'world_map.png'   #picture that will display volcanoes
 	time_data = np.linspace(0, 80, 400)  #x data for plot 1 (should be in terms of time (t))
-	y1_data  = func(True)    #y data for plot 1
-	y2_data  = func(False)   #y data for plot 2
+	y1_data = func(True)    #y data for plot 1
+	y2_data = func(False)   #y data for plot 2
 	main_title = "Volcano Data Explorer \n"  #main title for interface
-	title1	= 'Volcanoes over time'  #title for plot 1
-	title2	= 'Tide over time'   #title for plot 2
-	tmax     = 50  #max x (on x axis) shown at a time
-	repeat   = True
+	title1 = 'Volcanoes over time'  #title for plot 1
+	title2 = 'Tide over time'   #title for plot 2
+	tmax = 50  #max x (on x axis) shown at a time
+	repeat = True
 
-	ani      = SubplotAnimation(main_title,time_data,y1_data,y2_data,title1,title2,map_name,volc_location,tmax,repeat)
+	ani = SubplotAnimation(main_title,time_data,y1_data,y2_data,title1,title2,map_name,volc_location,tmax,repeat)
 	#ani.save('test_sub.mp4')
 	plt.show()
