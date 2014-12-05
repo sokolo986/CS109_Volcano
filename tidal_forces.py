@@ -36,8 +36,17 @@ def calculate_tide(sjd, dlat, dlon):
     os.remove(output_file)
     return tides
 	
-def findMax(tide_subset):
-    
+def findMax(tide_array, minimum, maximum, tide):
+    ind = np.argmax(tide_array[minimum:maximum+1, column])
+	while (ind == maximum) or (ind == minimum):
+		cycle = period
+	if ind == maximum:
+	    
+	while slope != zero:
+	    if maximu
+		new_max = maximum - time
+		ind = np.argmax(tide_array[minimum:new_max+1,column])
+	return ind
 	
 def periodMax(tide_array, period, column):
 	#tide = mf, mm, ssa, diurnal, or semi
