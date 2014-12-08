@@ -41,7 +41,7 @@ def meanAngle(array_of_phases):
 		theta = np.pi + theta
 	elif (x>0) & (y<0):
 		theta = 2*np.pi - theta
-	return theta
+	return theta*180/np.pi
 	
 def rayleighTest(array_of_phases):
 	"""Returns rayleigh and modified rayleigh test value."""

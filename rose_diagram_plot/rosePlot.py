@@ -13,14 +13,14 @@ class RoseFreqPlot():
 		register_projection(NorthPolarAxes)
 
 		#define important parameters
-		angle		= 5
+		angle = 5
 		nsection = 360 / angle
 		self.direction = np.linspace(0, 360, nsection, False) / 180 * np.pi
 
-		#put data in bins
+		#put data in bins --- data needs to be 0-360
 		self.frequency = [0] * (nsection)
 		for i in range(len(data)):
-			tmp = int((data[i][1] - data[i][1] % angle) / angle)
+			tmp = int((data[i] - data[i] % angle) / angle)
 			self.frequency[tmp] = self.frequency[tmp] + 1
 		self.width = angle / 180.0 * np.pi * np.ones(nsection)
 		
