@@ -1,68 +1,93 @@
 import numpy as np
-from matplotlib.projections import PolarAxes
-from matplotlib.transforms import Affine2D, Bbox, IdentityTransform
+import matplotlib.pyplot as plt
+from matplotlib.projections import register_projection
+from NorthPolarAxes import NorthPolarAxes
+import ConfigParser
+import sys
 
-class NorthPolarAxes(PolarAxes):
+#histogram version
+class RoseFreqPlot():
+	#x is the size of the histogram and y is angle
+	def __init__(self,data):
+		data = np.asarray(data)
+		register_projection(NorthPolarAxes)
 
-	name = 'northpolar'
+		#define important parameters
+		angle = 5
+		nsection = 360 / angle
+		self.direction = np.linspace(0, 360, nsection, False) / 180 * np.pi
 
-	def format_coord(self, angle, radius):
-		angle = np.pi * 0.5 - angle
-		if angle < 0:
-			angle = angle + 2 * np.pi
-		angle = angle * 180 / np.pi
-		return u'\u03b8=%f\u00b0, r=%f' % (angle, radius)
+		#put data in bins
+		self.frequency = [0] * (nsection)
+		for i in range(len(data)):
+			tmp = int((data[i] - data[i] % angle) / angle)
+			self.frequency[tmp] = self.frequency[tmp] + 1
+		self.width = angle / 180.0 * np.pi * np.ones(nsection)
+		
+	def plot_rose(self,plot_title):
+		#plot data
+		ax = plt.subplot(1, 1, 1, projection = 'northpolar')
+		ax.set_title(plot_title)
+		bars = ax.bar(self.direction, self.frequency, width=self.width, bottom=0.0)
+		for r,bar in zip(self.frequency, bars):
+			bar.set_facecolor(plt.cm.jet(0.8))
+			bar.set_edgecolor('grey')
+			bar.set_alpha(0.8)
+		plt.show()
 
-	class NorthPolarTransform(PolarAxes.PolarTransform):
-		def transform(self, tr):
-			xy = np.zeros(tr.shape, np.float_)
-			t = tr[:, 0:1]
-			r = tr[:, 1:2]
-			x = xy[:, 0:1]
-			y = xy[:, 1:2]
-			x[:] = r * np.sin(t)
-			y[:] = r * np.cos(t)
-			return xy
+#non-binned data version - takes avg value at angle theta
+class RosePlot():
+	#x is the size of the histogram and y is angle
+	def __init__(self,data):
+		data = np.asarray(data)
+		register_projection(NorthPolarAxes)
 
-		transform_non_affine = transform
+		#define important parameters
+		angle		= 5
+		nsection = 360 / angle
+		self.direction = np.linspace(0, 360, nsection, False) / 180 * np.pi
 
-		def inverted(self):
-			return NorthPolarAxes.InvertedNorthPolarTransform()
+		#put data in bins
+		frequency = {}#[0] * (nsection)
+		for i in xrange(nsection):
+			frequency[i] = []
 
-	class InvertedNorthPolarTransform(PolarAxes.InvertedPolarTransform):
-		def transform(self, xy):
-			x = xy[:, 0:1]
-			y = xy[:, 1:]
-			r = np.sqrt(x*x + y*y)
-			theta = np.arctan2(y, x)
-			return np.concatenate((theta, r), 1)
+		for d in data:
+			tmp = int((d[1] - d[1] % angle) / angle)
+			frequency[tmp].append(tmp)
+		
+		#average all freq values
+		freq = []
+		for k in sorted(frequency.iterkeys()):
+			if len(frequency[k])==0:
+				freq.append(0.)
+			else:
+				freq.append(np.mean(frequency[k]))
+		self.width = angle / 180.0 * np.pi * np.ones(nsection)
+		self.frequency = freq
 
-		def inverted(self):
-			return NorthPolarAxes.NorthPolarTransform()
+		#print self.frequency,type(self.frequency),len(self.frequency)
+		#sys.exit(0)
 
-		def _set_lim_and_transforms(self):
-			PolarAxes._set_lim_and_transforms(self)
-			self.transProjection = self.NorthPolarTransform()
-			self.transData = (
-			self.transScale +
-			self.transProjection +
-			(self.transProjectionAffine + self.transAxes))
-			self._xaxis_transform = (
-			self.transProjection +
-			self.PolarAffine(IdentityTransform(), Bbox.unit()) +
-			self.transAxes)
-			self._xaxis_text1_transform = (
-			self._theta_label1_position +
-			self._xaxis_transform)
-			self._yaxis_transform = (
-			Affine2D().scale(np.pi * 2.0, 1.0) +
-			self.transData)
-			self._yaxis_text1_transform = (
-			self._r_label1_position +
-			Affine2D().scale(1.0 / 360.0, 1.0) +
-			self._yaxis_transform)
+	def plot_rose(self,plot_title):
+		#plot data
+		ax = plt.subplot(1, 1, 1, projection = 'northpolar')
+		ax.set_title(plot_title)
+		bars = ax.bar(self.direction, self.frequency, width=self.width, bottom=0.0)
+		for r,bar in zip(self.frequency, bars):
+			bar.set_facecolor(plt.cm.jet(0.8))
+			bar.set_edgecolor('grey')
+			bar.set_alpha(0.8)
+		plt.show()
 
 if __name__ == '__main__':
 
-	xy = [[2,3,35,5,2,332,42],[2,6,2,3,6,2,3]] 
-	c = NorthPolarAxes(xy[0],xy[1])
+	filename 	= 'dip_azim'
+	plot_title	= 'Rose Plot'
+	data 			= 	np.genfromtxt(filename)
+	rp				=  RoseFreqPlot(data)
+	rp.plot_rose(plot_title + ' - Histogram Version')
+
+	rpr			=  RosePlot(data)
+	rpr.plot_rose(plot_title + ' - Averaged Version')
+
