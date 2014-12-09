@@ -38,6 +38,9 @@ def impute_vei(df, col):
     new_array = imp.fit_transform(array)
     return new_array
 
-#def impute_erup_length(df, start_date_col, end_date_col):
-	
+def impute_erup_length(df, col):
+	array = df.as_matrix([col])
+	imp = Imputer(missing_values = 'NaN', strategy = 'most_frequent', axis = 0)
+	new_array = imp.fit_transform(array)
+	return new_array
 	

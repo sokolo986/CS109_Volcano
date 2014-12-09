@@ -221,9 +221,9 @@ if __name__ == '__main__':
 
 
 
-	x = np.linspace(0,1000,500)
+	x = np.linspace(0,1000,500) #--- time
 	#create model with random noise
-	y = np.sin(x*phase_length) + [p*q for p,q in zip(np.random.uniform(-3,3,len(x)),np.random.uniform(-.20,.20,len(x)))]
+	y = np.sin(x*phase_length) + [p*q for p,q in zip(np.random.uniform(-3,3,len(x)),np.random.uniform(-.20,.20,len(x)))] # eruptions or tide
 	#plt.plot(x,y)
 	#plt.show()
 	#sys.exit(0)
