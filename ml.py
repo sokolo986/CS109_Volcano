@@ -12,8 +12,8 @@ import pandas as pd
 def feature_importance (data,isRegressor,n_estimators=50,test_estimators=False):
 
 	n,m 	= np.shape(data)
-	X 		= np.asarray(data.ix[:,0:m-1].values)
-	y 		= np.asarray(data.ix[:,m-1].values)
+	X 		= np.asarray(data.ix[:,0:m-1])
+	y 		= np.asarray(data.ix[:,m-1])
 	X_train,X_test,y_train,y_test = cross_validation.train_test_split(X,y,test_size = .2)
 
 	if test_estimators:
@@ -56,7 +56,7 @@ if __name__ == '__main__':
 
 	data 	= pd.io.parsers.read_csv('diamonds.csv',sep=',',header=True)
 
-	feature_imp = feature_importance(data,True,n_estimators=60,test_estimators=True)
+	feature_imp = feature_importance(data,True,n_estimators=60,test_estimators=False)
 
 	print "Feature Importance:",feature_imp
 	
