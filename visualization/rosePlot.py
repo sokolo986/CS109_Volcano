@@ -1,7 +1,3 @@
-"""
-This file creates a Rose Plot Diagram given the Angle and Height of the Histogram
-"""
-
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.projections import register_projection
@@ -21,10 +17,10 @@ class RoseFreqPlot():
 		nsection = 360 / angle
 		self.direction = np.linspace(0, 360, nsection, False) / 180 * np.pi
 
-		#put data in bins --- data needs to be 0-360
+		#put data in bins
 		self.frequency = [0] * (nsection)
-		for i in data:
-			tmp = int((i[1] - i[1] % angle) / angle)
+		for i in range(len(data)):
+			tmp = int((data[i] - data[i] % angle) / angle)
 			self.frequency[tmp] = self.frequency[tmp] + 1
 		self.width = angle / 180.0 * np.pi * np.ones(nsection)
 		
