@@ -1,3 +1,7 @@
+"""
+This file creates a Rose Plot Diagram given the Angle and Height of the Histogram
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.projections import register_projection

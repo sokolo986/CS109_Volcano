@@ -1,6 +1,7 @@
-#GUI for volcano - only function left to implement is a conversion between the location
-#of a dot on a picture and a map - we can start migrating true data to this file
-#will also clean up file so it looks neater 
+"""
+GUI for volcano 
+Main visualization
+"""
 
 import numpy as np
 import matplotlib.pyplot as plt
