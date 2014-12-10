@@ -1,0 +1,5 @@
+[configure]
+# filename is the name of the file which contains dip and dip direction
+filename = dip_azim
+# angle [degree], based on which a whole circle is going to be divided into 360 / angle parts
+angle = 5
