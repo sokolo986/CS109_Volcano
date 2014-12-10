@@ -32,7 +32,6 @@ Main Directory
 
 	data_files: These are all the data files referenced throughout the notebook
 
-
 Install Instructions
 ===========================
 There are two main files, FINAL.ipynb and volcano_gui.py
