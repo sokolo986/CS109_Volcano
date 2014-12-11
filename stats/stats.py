@@ -48,12 +48,14 @@ def rayleighTest(array_of_phases):
 	n = len(array_of_phases)
 	r = meanVec(array_of_phases)
 	ray = 2*n*(r**2)
-	mod_ray = ((1.-(1./(2.*n)))*2.*n*(r**2)) + (n*(r**4)/2.)
-	return ray,mod_ray
+	#mod_ray = ((1.-(1./(2.*n)))*2.*n*(r**2)) + (n*(r**4)/2.)
+	return ray#,mod_ray
 	
 def rayleigh_prob(array_of_phases):
 	r = meanAngle(array_of_phases)
-	p = np.exp(-(r**2)*len(array_of_phases))
+	n = len(array_of_phases)
+	z = rayleighTest(array_of_phases)
+	p = np.exp(-z)*(1+((2*z +z**2)/(4*n))-((24*z -13*z**2 +76*z**3 -9*z**4)/(288*n**2)))
 	return p
 	
 # rose_plot(array_of_phases, bins, figsize, rgrids, rlabel_pos, theta_grids, color):
