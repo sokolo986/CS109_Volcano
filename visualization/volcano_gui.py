@@ -28,16 +28,13 @@ class SubplotAnimation(animation.TimedAnimation):
 	#map for axis 1	
 	m = Basemap(ax=ax1, projection='kav7',resolution=None,lat_1=45.,lat_2=55,lat_0=50,lon_0=-107.)
 	m.bluemarble()
-	volcanoes = pd.io.parsers.read_csv('volc_loc.csv').values
+	volcanoes = pd.io.parsers.read_csv('../data_files/volc_loc.csv').values
 	volc_lon = volcanoes[:,0]
 	volc_lat = volcanoes[:,1]
 	x,y = m(volc_lon,volc_lat)
         self.m = m
 	cr = np.random.rand(len(x))
 	volc_dot_size = np.random.randint(80,200,len(x))
-	#ax_s =	m.scatter(x,y,marker='o',c=cr,s=volc_dot_size, alpha=.4, edgecolor='k')
-	#self.line1 = Line2D([], [], color=volc_dot_size, alpha=.4, marker='o', markeredgecolor='k')
-        #ax1.add_line(self.line1)
 
         self.t0 = 0
 	self.data = data
@@ -55,13 +52,8 @@ class SubplotAnimation(animation.TimedAnimation):
 	self.lon = x	
 	self.lat = y
 
-        #ax1.imshow(img)
         ax1.set_axis_off()
         ax1.set_title(title,color='white',fontsize=30)
-        #ax1.set_xlim(-1, 3000)
-        #ax1.set_ylim(-2, 2000)
-        #ax1.set_aspect('equal', 'datalim')
-        #self.line1 = Line2D([], [], marker='o', markersize=15, alpha=.4, color='green',drawstyle='steps-post',ls='None')
 	self.line1 = Line2D([], [], marker='o', c='r', markersize=17, alpha=.5,markeredgecolor='k',ls='None')
         ax1.add_line(self.line1)
 
@@ -81,8 +73,7 @@ class SubplotAnimation(animation.TimedAnimation):
         ax2.add_line(self.line2a)
         ax2.add_line(self.line2e)
         ax2.set_ylim(np.min(self.y)*1.1, np.max(self.y)*1.1)
-        #ax2.set_xlim(0, 800)#changed
-        ax2.set_xlim(self.t0, self.t0+self.tmax)# 800)#10*np.max(self.t))
+        ax2.set_xlim(self.t0, self.t0+self.tmax)#
 
         ax3.set_xlabel(text,color='white')
         ax3.set_ylabel('Meters of Displacement',color='white')
@@ -95,8 +86,8 @@ class SubplotAnimation(animation.TimedAnimation):
         ax3.add_line(self.line3)
         ax3.add_line(self.line3a)
         ax3.add_line(self.line3e)
-        ax3.set_ylim(np.min(self.x)*1.1, np.max(self.x)*1.1)#changed
-        ax3.set_xlim(self.t0, self.t0+self.tmax)#800)#10*np.max(self.t))#changed
+        ax3.set_ylim(np.min(self.x)*1.1, np.max(self.x)*1.1)
+        ax3.set_xlim(self.t0, self.t0+self.tmax)
         animation.TimedAnimation.__init__(self, fig, interval=speed, blit=True,repeat=repeat)
 
         #save axis
@@ -109,7 +100,6 @@ class SubplotAnimation(animation.TimedAnimation):
         head = i - 1
         head_len = 10
         head_slice = (self.t > self.t[i] - 1.0) & (self.t < self.t[i])
-        #vol = self.volc_fun(self.t,self.lon,self.lat)
         lon,lat = location_of_eruption(self.data,i,self.start_year)
         x_loc,y_loc = self.m(lon,lat)
 
@@ -126,7 +116,7 @@ class SubplotAnimation(animation.TimedAnimation):
             self.ax2.figure.canvas.draw()
             self.ax3.figure.canvas.draw()  
 
-        if lastt > (self.t0 + self.tmax): # reset the arrays
+        if lastt > (self.t0 + self.tmax): 
              self.t0 = self.t0 + self.tmax
              self.ax2.set_xlim(self.t0, self.t0 + self.tmax)
              self.ax3.set_xlim(self.t0, self.t0 + self.tmax)
@@ -135,10 +125,6 @@ class SubplotAnimation(animation.TimedAnimation):
              self.ax3.figure.canvas.draw()
         
         self.line1.set_data(x_loc,y_loc)
-        #self.line1.set_data(self.volc_fun(self.t,self.lon,self.lat)[0],self.volc_fun(self.t,self.lon,self.lat)[1])#self.lon, self.lat)
-        #self.line1.set_data(self.x[:i], self.y[:i])
-        #self.line1a.set_data(self.x[head_slice], self.y[head_slice])
-        #self.line1e.set_data(self.x[head], self.y[head])
 
         self.line2.set_data(self.z[:i], self.y[:i])
         self.line2a.set_data(self.z[head_slice], self.y[head_slice])
@@ -169,8 +155,7 @@ class SubplotAnimation(animation.TimedAnimation):
         for l in lines:
             l.set_data([], [])
 
-#these can eventually go away once we input the data
-#func1 and func2 must accept an array and produce and return an array of resulting values
+
 def func(isfunc1,time,data,start_year):
 	def func1(data,time,start_year):
 		e = []
@@ -179,9 +164,7 @@ def func(isfunc1,time,data,start_year):
 			month = t % 12
 			e.append(data[(data['Start Year']==(year+start_year)) & (data['Start Month']==month)].shape[0])
 		return e
-		
-		#return np.random.randn(1,len(t))[0]#np.array([np.random.randn(1) for i in t])
-		#return np.cos(2 * np.pi * t / 10.)
+
 
 	def func2(data,t,start_year):
 		return np.sin(1.3 * np.pi * t / 10.)
@@ -190,8 +173,7 @@ def func(isfunc1,time,data,start_year):
 		return np.asarray(func1(data,time,start_year))
 	return np.asarray(func2(data,time,start_year))
 
-#these can eventually go away once we input the data
-#function that returns the location of a volcano that erupted during an array of different time frames
+
 def volc_location(t,x,y):
 	n = np.random.randint(0,10)
 	delta = datetime.datetime.now() - datetime.datetime(1970,1,1)
@@ -210,9 +192,9 @@ def location_of_eruption(data,t,start_year):
 
 if __name__=='__main__':
 
-	data = pd.read_json('conf_erup.json')
+	data = pd.read_json('../data_files/conf_erup.json')
 	#start_year = np.min(data['Start Year'])
-	start_year = 1950 #start year was chosen because years before 1900 tend to be very sparse (less recorded sightings of volcanoes)
+	start_year = 1950 #start year was chosen because years before 1900 tend to be very sparse (less recorded sightings of volcanoes) -this can change
 	dif = 2015-start_year
 	time_data = np.arange(0, 12*(dif), 1)  #starting at year 46 going to 2014
 	main_title = "Volcano Data Explorer\n"  #main title for interface
@@ -235,7 +217,7 @@ if __name__=='__main__':
 	print
 
 	#loading volcanic data
-	y2_data = np.loadtxt('eruptions')
+	y2_data = np.loadtxt('../data_files/eruptions')
 	y2_data = y2_data[len(y2_data)-len(time_data):len(y2_data)]
 	y1_data = func(False,time_data,data,start_year)   #y data for plot 2
 	
@@ -247,8 +229,6 @@ if __name__=='__main__':
 	print
 	print "The red dots indicate volcanoes that exploded in a certain month of the year (All step sizes for time are in months)"
 
-	#for t in time_data:
-	#	print location_of_eruption(data,t,start_year)
 	
 	ani = SubplotAnimation(main_title,time_data,y1_data,y2_data,title1,title2,location_of_eruption,tmax,repeat,speed,start_year,data)
 	#ani.save('test_sub.mp4')

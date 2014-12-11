@@ -5,6 +5,8 @@ Project by: Jocelyn Fuentes and Sierra Okolo
 Date: 10 December 2014
 Course: CS109 Final Project
 Project: Volcanoes
+Github: To locate our additional files, please check out the following 
+https://github.com/sokolo986/CS109_Volcano 
 
 Introduction
 ==============
